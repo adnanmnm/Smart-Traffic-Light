@@ -1,0 +1,49 @@
+function output = Numvehicles1(image1,size1,doublesize)
+%gray img
+x1=imread(image1);
+x2= rgb2gray(x1);
+imshow(x2);figure;
+J=im2double(x2);
+x3 = medfilt2(J);
+imshow(x3);figure;
+x4=edge(x3,'canny',0.3);
+imshow(x4),figure;
+x5=imfill(x4,'holes'); 
+x6=bwmorph(x5,'close',inf);
+x6=bwmorph(x6,'dilate',1);
+%x6=imerode(x6,[0 1 0;1 1 1;0 1 0]);
+x6=imdilate(x6,[0 1 0;1 1 1;0 1 0]);
+ 
+x7=imfill(x6,'holes');
+imshow(x7);figure;
+ 
+x8=imopen(x7,strel('disk',5));
+ 
+imshow(x8);figure;
+x8=imerode(x8,[0 1 0;1 1 1;0 1 0]);
+%x7=imerode(x7,[1 1 1;1 1 1;1 1 1]);
+x8 = bwareaopen(x8,size1);
+%x7=imerode(x7,[0 1 0;1 1 1;0 1 0]);
+ 
+imshow(x8),figure
+[l n]=bwlabel(x8);
+props=regionprops(l,'Area');
+numob=0;
+for i=1:size(props,1)
+  if props(i).Area>doublesize
+      %props(i).Area
+      numob=props(i).Area/doublesize;
+      numob=round(numob);
+  end
+end
+ 
+stat = regionprops(l,'BoundingBox');
+str = sprintf('number of detected Vehicles : %d', n+numob);
+imshow(x1); title(str); hold on;
+for cnt = 1 : length(stat)
+    bb = stat(cnt).BoundingBox;
+    rectangle('position',bb,'edgecolor','r');    
+end
+bigBox_Contain=numob
+xxx=n+ numob;
+output =xxx;
